@@ -29,10 +29,9 @@ namespace FramePage
         static int btnS = 3;
 
         bool IsMDown = false;
+        bool IsDrag = false; 
         Rectangle rect = new Rectangle();
-
-        System.Windows.Point mouseDownPos;
-        
+        System.Windows.Point DownPoint = new System.Windows.Point(0, 0); 
 
         public Page1()
         {
@@ -57,11 +56,11 @@ namespace FramePage
                 GridButtons.Children.Add(btns[i]);
                 Grid.SetRow(btns[i], row);
                 Grid.SetColumn(btns[i], col);
-                btns[i].PreviewMouseLeftButtonDown += OnMouseLeftButtonDown; 
-            }
 
-            //MouseLeftButtonDown += OnMouseLeftButtonDown; 
-            //GridButtons.MouseLeftButtonDown += OnMouseLeftButtonDown;
+                btns[i].PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
+
+                btns[i].Click += new RoutedEventHandler(ToggleButton_Clicked);
+            }
 
             Debug.WriteLine("print\n\n\n");
 
@@ -69,16 +68,11 @@ namespace FramePage
 
         protected void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //base.OnMouseLeftButtonDown(e);
+            base.OnMouseLeftButtonDown(e);
             GridButtons.CaptureMouse();
             IsMDown = true;
-            //rect.Location = (System.Drawing.Point)e.GetPosition(this); 
-            rect.X = (int)e.GetPosition(this).X;
-            rect.Y = (int)e.GetPosition(this).Y;
-            rect.Width = 0;
-            rect.Height = 0;
 
-            mouseDownPos = e.GetPosition(this);
+            DownPoint = e.GetPosition(this);
 
             Debug.WriteLine("print mouse down\n\n");
         }
@@ -86,33 +80,61 @@ namespace FramePage
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+
             if (IsMDown)
             {
-                //System.Drawing.Point pos = e.GetPosition(this);
-                System.Windows.Point pos = e.GetPosition(this);
-                rect.Width = (int)pos.X - rect.X;
-                rect.Height = (int)pos.Y - rect.Y;
+                if (Math.Abs(DownPoint.X - e.GetPosition(this).X) > 3 || Math.Abs(DownPoint.Y - e.GetPosition(this).Y) > 3)
+                    IsDrag = true; 
+            }
 
-                Debug.WriteLine("mouse move", rect.Width, rect.Height); 
+            if (IsDrag)
+            {
+                var pos = e.GetPosition(this); 
+                foreach (ToggleButton btn in btns)
+                {
+                    bool isSelected = IsInsideSelection(pos, btn);
+                    
+                    if (isSelected)
+                    {
+                        Debug.WriteLine("Selected\n\n");
+                        btn.IsChecked = true; 
+                    } 
+                }
             }
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
-            //base.OnMouseLeftButtonUp(e);
+            base.OnMouseLeftButtonUp(e);
             GridButtons.ReleaseMouseCapture();
-            IsMDown = false;
-            //Rectangle box = GetBox
-            Rectangle box = GetBox(rect);
 
-            System.Windows.Point mouseUpPos = e.GetPosition(this);
-
-            foreach (ToggleButton ctrl in btns)
+            if (!IsDrag)
             {
-                var isInSelection = IsInsideSelection(mouseDownPos, mouseUpPos, ctrl);
-                ctrl.IsChecked = isInSelection;
+                var pos = e.GetPosition(this); 
+                foreach (ToggleButton btn in btns)
+                {
+                    if (IsInsideSelection(pos, btn))
+                    {
+                        btn.IsChecked = !btn.IsChecked;
+                    }
+                }
+
             }
-            Debug.WriteLine("print mouse up\n", mouseUpPos);
+
+
+            IsMDown = false;
+            IsDrag = false; 
+            //Rectangle box = GetBox
+            //Rectangle box = GetBox(rect);
+
+            //System.Windows.Point mouseUpPos = e.GetPosition(this);
+
+            //foreach (ToggleButton ctrl in btns)
+            //{
+            //    var isInSelection = IsInsideSelection(mouseDownPos, mouseUpPos, ctrl);
+            //    ctrl.IsChecked = isInSelection;
+            //}
+            //Debug.WriteLine("print mouse up\n", mouseUpPos);
         }
 
         private Rectangle GetBox(Rectangle rect)
@@ -131,6 +153,32 @@ namespace FramePage
                 return false;
 
             return true;
+        }
+
+        private bool IsInsideSelection(System.Windows.Point mousePoint, ToggleButton button)
+        {
+            var buttonPos = button.TransformToAncestor(this).Transform(new System.Windows.Point(0, 0));
+            double left = buttonPos.X;
+            double top = buttonPos.Y; 
+            double right = buttonPos.X + button.ActualWidth;
+            double bottom = buttonPos.Y + button.ActualHeight;
+            //var size = new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity);
+            //button.Measure(size); 
+
+            Debug.WriteLine("left: {0:f2}, right: {1:f2}, top: {2:f2}, bottom: {3:f2}, point.X: {4:f2}, point.Y: {5:f2}",
+                buttonPos.X, buttonPos.Y, right, bottom, mousePoint.X, mousePoint.Y);
+
+            if (mousePoint.X > left && mousePoint.X < right && mousePoint.Y > top && mousePoint.Y < bottom)
+            {
+                return true; 
+            }
+
+            return false; 
+        }
+
+        private void ToggleButton_Clicked(object sender, RoutedEventArgs e)
+        {
+            ((ToggleButton)sender).IsChecked = !((ToggleButton)sender).IsChecked; 
         }
     }
 }
