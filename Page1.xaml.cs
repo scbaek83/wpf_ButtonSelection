@@ -36,13 +36,7 @@ namespace FramePage
         public Page1()
         {
             InitializeComponent();
-
-            RowDefinition gridRow1 = new RowDefinition();
-            gridRow1.Height = new GridLength(1, GridUnitType.Star);
-
-            GridButtons.RowDefinitions.Add(gridRow1); 
             
-
             for (int i=0; i<9; i++)
             {
                 btns[i] = new ToggleButton()
@@ -58,12 +52,7 @@ namespace FramePage
                 Grid.SetColumn(btns[i], col);
 
                 btns[i].PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
-
-                btns[i].Click += new RoutedEventHandler(ToggleButton_Clicked);
             }
-
-            Debug.WriteLine("print\n\n\n");
-
         }
 
         protected void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -73,8 +62,6 @@ namespace FramePage
             IsMDown = true;
 
             DownPoint = e.GetPosition(this);
-
-            Debug.WriteLine("print mouse down\n\n");
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -108,6 +95,7 @@ namespace FramePage
             base.OnMouseLeftButtonUp(e);
             GridButtons.ReleaseMouseCapture();
 
+            // Drag 없이 클릭만 했을때 => 토글
             if (!IsDrag)
             {
                 var pos = e.GetPosition(this); 
@@ -121,38 +109,8 @@ namespace FramePage
 
             }
 
-
             IsMDown = false;
             IsDrag = false; 
-            //Rectangle box = GetBox
-            //Rectangle box = GetBox(rect);
-
-            //System.Windows.Point mouseUpPos = e.GetPosition(this);
-
-            //foreach (ToggleButton ctrl in btns)
-            //{
-            //    var isInSelection = IsInsideSelection(mouseDownPos, mouseUpPos, ctrl);
-            //    ctrl.IsChecked = isInSelection;
-            //}
-            //Debug.WriteLine("print mouse up\n", mouseUpPos);
-        }
-
-        private Rectangle GetBox(Rectangle rect)
-        {
-            Rectangle box = rect;
-            return box;
-        }
-
-        private bool IsInsideSelection(System.Windows.Point mouseDown, System.Windows.Point mouseUp, ToggleButton button)
-        {
-            var buttonPos = button.TransformToAncestor(this).Transform(new System.Windows.Point(0, 0));
-            var btnBottomRight = new System.Windows.Point(buttonPos.X + button.Width, buttonPos.Y + button.Height);
-            if (buttonPos.X < mouseDown.X || buttonPos.Y < mouseDown.Y)
-                return false;
-            if (btnBottomRight.X > mouseUp.X || btnBottomRight.Y > mouseUp.Y)
-                return false;
-
-            return true;
         }
 
         private bool IsInsideSelection(System.Windows.Point mousePoint, ToggleButton button)
@@ -162,11 +120,6 @@ namespace FramePage
             double top = buttonPos.Y; 
             double right = buttonPos.X + button.ActualWidth;
             double bottom = buttonPos.Y + button.ActualHeight;
-            //var size = new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity);
-            //button.Measure(size); 
-
-            Debug.WriteLine("left: {0:f2}, right: {1:f2}, top: {2:f2}, bottom: {3:f2}, point.X: {4:f2}, point.Y: {5:f2}",
-                buttonPos.X, buttonPos.Y, right, bottom, mousePoint.X, mousePoint.Y);
 
             if (mousePoint.X > left && mousePoint.X < right && mousePoint.Y > top && mousePoint.Y < bottom)
             {
@@ -176,9 +129,5 @@ namespace FramePage
             return false; 
         }
 
-        private void ToggleButton_Clicked(object sender, RoutedEventArgs e)
-        {
-            ((ToggleButton)sender).IsChecked = !((ToggleButton)sender).IsChecked; 
-        }
     }
 }
