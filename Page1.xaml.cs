@@ -22,34 +22,29 @@ namespace FramePage
     /// </summary>
     public partial class Page1 : Page
     {
-        ToggleButton[] btns = new ToggleButton[9];
-        static int margin = 10;
-        static int btnW = 50;
-        static int btnH = 30;
-        static int btnS = 3;
-
+        ToggleButton[] btns = new ToggleButton[30];
         bool IsMDown = false;
         bool IsDrag = false; 
-        Rectangle rect = new Rectangle();
         System.Windows.Point DownPoint = new System.Windows.Point(0, 0); 
 
         public Page1()
         {
             InitializeComponent();
             
-            for (int i=0; i<9; i++)
+            for (int i=0; i<30; i++)
             {
                 btns[i] = new ToggleButton()
                 {
                     Content = i + 1
                 }; 
 
-                int row = i / 3;
-                int col = i % 3; 
+                int row = i / 5;
+                int col = i % 5; 
 
                 GridButtons.Children.Add(btns[i]);
                 Grid.SetRow(btns[i], row);
                 Grid.SetColumn(btns[i], col);
+                btns[i].Height = 100;
 
                 btns[i].PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
             }
@@ -106,7 +101,6 @@ namespace FramePage
                         btn.IsChecked = !btn.IsChecked;
                     }
                 }
-
             }
 
             IsMDown = false;
@@ -122,12 +116,9 @@ namespace FramePage
             double bottom = buttonPos.Y + button.ActualHeight;
 
             if (mousePoint.X > left && mousePoint.X < right && mousePoint.Y > top && mousePoint.Y < bottom)
-            {
                 return true; 
-            }
 
             return false; 
         }
-
     }
 }

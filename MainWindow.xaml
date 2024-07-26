@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FramePage"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="740" Width="794">
     <Grid>
         <StackPanel>
             <Button Click="Button_Click_1">page1</Button>
             <Button Click="Button_Click_2">page2</Button>
-            
-            <Frame Height="228" x:Name="fr" NavigationUIVisibility="Hidden"/>
+
+            <Frame  x:Name="fr" NavigationUIVisibility="Hidden"/>
         </StackPanel>
     </Grid>
 </Window>
